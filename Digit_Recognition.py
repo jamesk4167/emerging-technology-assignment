@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 import PIL
 from PIL import Image
 import os.path
+from keras.models import model_from_json
 
-def NeuralNetwork(userImage) :
+def NeuralNetwork() :
     #create a sequential model with keras
     model = kr.models.Sequential()
 
@@ -18,6 +19,7 @@ def NeuralNetwork(userImage) :
 
 
     model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
+
 
 
     with gzip.open('data/train-images-idx3-ubyte.gz') as f:
@@ -35,23 +37,44 @@ def NeuralNetwork(userImage) :
     encoder.fit(train_lbl)
     outputs = encoder.transform(train_lbl)
     print("training Neural Network")
-    model.fit(inputs, outputs, epoch = 10, batch_size = 100)
+    model.fit(inputs, outputs, epochs=100, batch_size = 100)
+    #save the model to a json file
+    model_json = model.to_json()
+    with open("model.json", "w") as json_file:
+       json_file.write(model_json)
    
-    print(encoder.inverse_transform(model.predict(userImage)))
+    #save the weights 
+    model.save_weights("model.h5")
+    print("Saved model to disk")
+    #print(encoder.inverse_transform(model.predict(userImage)))
 
+
+def TestAgainstUserImage(userImg):
+    json_file = open('model.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    #load weights into the new model
+    loaded_model.load_weights("model.h5")
+    print("loaded model from disk")
+    loaded_model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
+    
+    print("The number you have entered is :")
+    print(str(loaded_model.predict_classes(userImg)))
 
 def userImage(userImg):
-    #read in the image in greyscale
+    #read in the image
     image = Image.open(userImg)
+    #Convert to greyscale
     greyImage = image.convert('L')
-    #imshow
-    #print(image.shape)
+    
+    
     #resize the image to 28 by 28 format as this is what our neural network understands
     ResizedImage = greyImage.resize((28,28),Image.BICUBIC)
     #print(correct_img.shape)
 
     preparedImage = prepareImage(ResizedImage)
-    NeuralNetwork(preparedImage)
+    TestAgainstUserImage(preparedImage)
 
 def prepareImage(img):
     #get all of the pixel values for the data
@@ -70,7 +93,7 @@ def prepareImage(img):
 
 
 def Menu():
-    imageDir = input("please enter the path to the image you want to check")
+    imageDir = input("please enter the path to the image you want to check: ")
     userImage(imageDir)
 
 #main function    
