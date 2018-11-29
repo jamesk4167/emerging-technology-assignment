@@ -1,5 +1,5 @@
 import numpy as np 
-import cv2
+
 import gzip
 import keras as kr
 import sklearn.preprocessing as pre
@@ -27,15 +27,16 @@ def NeuralNetwork() :
 
     with gzip.open('data/train-labels-idx1-ubyte.gz') as f:
        train_lbl = f.read()
-
+    #convert to a numpy array and divide by 255 as RGB values are between 255 and 0
     train_img = ~np.array(list(train_img[16:])).reshape(60000, 28,28).astype(np.uint8) / 255.0
     train_lbl = np.array(list(train_lbl[8:])).astype(np.uint8)
 
     inputs = train_img.reshape(60000, 784)
-
+    #Binrize labels
     encoder = pre.LabelBinarizer()
     encoder.fit(train_lbl)
     outputs = encoder.transform(train_lbl)
+    print(train_lbl[0], outputs[0])
     print("training Neural Network")
     model.fit(inputs, outputs, epochs=100, batch_size = 100)
     #save the model to a json file
@@ -57,7 +58,7 @@ def TestAgainstUserImage(userImg):
     #load weights into the new model
     loaded_model.load_weights("model.h5")
     print("loaded model from disk")
-    loaded_model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
+    #loaded_model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
     
     print("The number you have entered is :")
     print(str(loaded_model.predict_classes(userImg)))
