@@ -1,14 +1,29 @@
 import numpy as np 
-
+import cv2
 import gzip
 import keras as kr
 import sklearn.preprocessing as pre
-import matplotlib.pyplot as plt
 import PIL
-from PIL import Image
+
+from PIL import Image, ImageDraw, ImageTk
+
+import tkinter as tkr
+
+import sys
 import os
 import os.path
 from keras.models import model_from_json
+
+
+width = 500
+height = 500
+center = height/2
+white = (255,255,255)
+green = (0,128,0)
+
+
+
+    # tkinter create a game canvas to draw on
 
 def NeuralNetwork() :
     global encoder
@@ -53,23 +68,22 @@ def NeuralNetwork() :
 
 
 def TestAgainstUserImage(userImg):
+    #check if the model is there
     if(os.path.isfile("model.json")) :
+        #open json file
         json_file = open('model.json', 'r')
+        #load the model
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         #load weights into the new model
         loaded_model.load_weights("model.h5")
         print("loaded model from disk")
-        model = loaded_model
-        #loaded_model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
-        #prediction = model.predict(np.array(userImg, dtype=float))
-
-        print("Predicted: ", prediction)
+        #print prediction
+        print("==================================================")
         print("The number you have entered is : " + (str(loaded_model.predict_classes(userImg))))
-        #encoder = pre.LabelBinarizer()
-        #print(encoder.inverse_transform(loaded_model.predict_classes(userImg)))
-        #print(str(loaded_model.predict_classes(userImg)))
+        print("==================================================")
+        
         MainMenu()
     else :
         NeuralNetwork()
@@ -77,14 +91,14 @@ def TestAgainstUserImage(userImg):
 
 def userImage(userImg):
     #read in the image
-    image = Image.open(userImg)
+    img = Image.open(userImg)
     #Convert to greyscale
-    greyImage = image.convert('L')
+    greyImage = img.convert('L')
     
     
     #resize the image to 28 by 28 format as this is what our neural network understands
     ResizedImage = greyImage.resize((28,28),Image.BICUBIC)
-    #print(correct_img.shape)
+    
 
     preparedImage = prepareImage(ResizedImage)
     TestAgainstUserImage(preparedImage)
@@ -103,24 +117,63 @@ def prepareImage(img):
     ## Return the image data
     return RebuiltImg
 
+
+#Sourced the code for save and paint methods from https://www.youtube.com/watch?v=OdDCsxfI8S0
+def Save():
+    filename = "Userimage.png"
+    UserDrawnImage.save(filename)
+    print("image saved please close the window")
+
+
+def paint(event):
+    x1, y1 = (event.x - 1), (event.y - 1)
+    x2, y2 = (event.x + 1), (event.y + 1)
+    cv.create_oval(x1, y1, x2, y2, fill="black",width=5)
+    draw.line([x1, y1, x2, y2],fill="black",width=5)
+
+
+
 def MainMenu():
 
     
     
     print("please decide how you would like to proceed")
     print("press 1 to enter an image")
-    print("Choose 2 to exit")
+    print("press 2 to draw your own image")
+    print("Choose 3 to exit")
 
     choice = input ("Please make a choice: ")
-
-    if choice == "2":
+    if choice == "3":
         SystemExit
+    elif choice == "2":
+        #Sourced the code for here from https://www.youtube.com/watch?v=OdDCsxfI8S0
+        global cv, draw, UserDrawnImage
+        root = tkr.Tk()
+        cv = tkr.Canvas(root, width=width, height=height, bg='white')
+        cv.pack()
+
+        UserDrawnImage = PIL.Image.new("RGB", (width, height), white)
+        draw = ImageDraw.Draw(UserDrawnImage)
+
+        cv.pack()
+        cv.bind("<B1-Motion>", paint)
+
+        button=tkr.Button(text="save",command=Save)
+        button.pack()
+
+        root.mainloop()
+        print("==================================================")
+        print("your Image has been saved as userimage.png")
+        print("to check your image press 1 and enter userimage.png")
+        print("==================================================")
+        MainMenu()
     elif choice == "1":
         inputMenu()
     else:
         print("I don't understand your choice.")
-        MainMenu()
         print("=======================================")
+        MainMenu()
+        
 
 
 
@@ -134,7 +187,7 @@ def inputMenu():
     except FileNotFoundError:
         print("Sorry this file does not exist, try using 5.jpg or 4.jpg which I have provided for you")
         print("=========================================================")
-        Menu()
+        inputMenu()
 
 #main function    
 def main():
