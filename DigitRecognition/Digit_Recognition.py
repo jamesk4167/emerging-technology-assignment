@@ -38,9 +38,9 @@ def NeuralNetwork() :
     encoder = pre.LabelBinarizer()
     encoder.fit(train_lbl)
     outputs = encoder.transform(train_lbl)
-    #print(train_lbl[0], outputs[0])
-
-    model.fit(inputs, outputs, epochs=10, batch_size = 100)
+    
+    
+    model.fit(inputs, outputs, epochs=100, batch_size = 100)
     #save the model to a json file
     model_json = model.to_json()
     with open("model.json", "w") as json_file:
@@ -49,24 +49,7 @@ def NeuralNetwork() :
     #save the weights 
     model.save_weights("model.h5")
     print("Saved the model to disk")
-    #test if the neural network works
-    with gzip.open('data/t10k-images-idx3-ubyte.gz', 'rb') as f:
-
-        test_img = f.read()
-
-    with gzip.open('data/t10k-labels-idx1-ubyte.gz', 'rb') as f:
-        test_lbl = f.read()
-    
-    test_img = np.array(list(test_img[16:])).reshape(10000, 784).astype(np.uint8) / 255.0
-    test_lbl = np.array(list(test_lbl[ 8:])).astype(np.uint8)
-
-    #encoder.inverse_transform(model.predict(test_img)) == test_lbl.sum()
-
-    #print(model.predict_classes(userImg))
-
-    
-    plt.imshow(test_img[5].reshape(28, 28), cmap='gray')
-    Menu()
+    inputMenu()
 
 
 def TestAgainstUserImage(userImg):
@@ -80,13 +63,14 @@ def TestAgainstUserImage(userImg):
         print("loaded model from disk")
         model = loaded_model
         #loaded_model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
-        prediction = model.predict(np.array(userImg, dtype=float))
+        #prediction = model.predict(np.array(userImg, dtype=float))
 
         print("Predicted: ", prediction)
-        print("The number you have entered is :")
+        print("The number you have entered is : " + (str(loaded_model.predict_classes(userImg))))
         #encoder = pre.LabelBinarizer()
         #print(encoder.inverse_transform(loaded_model.predict_classes(userImg)))
-        print(str(loaded_model.predict_classes(userImg)))
+        #print(str(loaded_model.predict_classes(userImg)))
+        MainMenu()
     else :
         NeuralNetwork()
     
@@ -109,20 +93,41 @@ def prepareImage(img):
     #get all of the pixel values for the data
     imageData = list(img.getdata())
     #next need to normalise the data as our Neural network has also been normalized multiplying by (1/255) should do
-    #for i in imageData:
     imageData = [(255 - i) * 1.0 / 255.0 for i in imageData]
     
 
     #finally rebuild the image
     RebuiltImg = np.array(list(imageData)).reshape(1,784)
-    #used this print statement to make sure the image was resized properly
-    #print(RebuiltImg)
+    
+    
     ## Return the image data
     return RebuiltImg
 
+def MainMenu():
 
-def Menu():
+    
+    
+    print("please decide how you would like to proceed")
+    print("press 1 to enter an image")
+    print("Choose 2 to exit")
+
+    choice = input ("Please make a choice: ")
+
+    if choice == "2":
+        SystemExit
+    elif choice == "1":
+        inputMenu()
+    else:
+        print("I don't understand your choice.")
+        MainMenu()
+        print("=======================================")
+
+
+
+def inputMenu():
     #for this program to work I have provided some sample images inside of the folder that can be used eg 5.jpg
+    print("Hello welcome to my digit recognition program")
+    
     imageDir = input("please enter the path to the image you want to check: ")
     try:
        userImage(imageDir) 
@@ -133,7 +138,7 @@ def Menu():
 
 #main function    
 def main():
-   Menu()
+   MainMenu()
 
 if __name__ == '__main__':
     main()
