@@ -29,8 +29,9 @@ def NeuralNetwork() :
     global encoder
     #create a sequential model with keras
     model = kr.models.Sequential()
-
+    #Add the first layer to the neural network, it must take input of 784 pixels as this is the size of our images
     model.add(kr.layers.Dense(units = 512, activation = 'relu', input_dim = 784))
+    #add a hidden layer
     model.add(kr.layers.Dense(units = 512, activation = 'relu'))
     model.add(kr.layers.Dense(units=10, activation='softmax'))
 
