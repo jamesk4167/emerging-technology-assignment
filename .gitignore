@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
+
 # Distribution / packaging
 .Python
 build/
@@ -105,3 +106,6 @@ venv.bak/
 
 # data folder
 data/
+
+# visual studio
+.vscode/
