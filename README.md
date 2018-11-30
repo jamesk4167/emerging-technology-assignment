@@ -42,3 +42,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * [Pil](https://pillow.readthedocs.io/en/5.3.x/)
 * [TensorFlow](https://www.tensorflow.org/api_docs/)
 * [Numpy tutorial](https://docs.scipy.org/doc/numpy-1.15.1/user/quickstart.html)
+* [Ian mcgloughlin](https://github.com/ianmcloughlin)
+* [Machine Learning Mastery]( https://machinelearningmastery.com/save-load-machine-learning-models-python-scikit-learn/)
+* [Youtube Tutorial]( https://www.youtube.com/watch?v=OdDCsxfI8S0)
+* [Matplotlib]( https://matplotlib.org/resources/index.html)
